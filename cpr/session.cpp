@@ -179,7 +179,15 @@ void Session::Impl::SetMultipart(Multipart&& multipart) {
         for (auto& part : multipart.parts) {
             auto content_option = CURLFORM_COPYCONTENTS;
             if (part.is_file) {
-                content_option = CURLFORM_FILE;
+                if (part.file_position == decltype(part.file_position)::path) {
+                    content_option = CURLFORM_FILE;
+                } else {
+                    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, part.name.data(),
+                                 CURLFORM_BUFFER,"filename",
+                                 CURLFORM_BUFFERPTR, part.buffer,
+                                 CURLFORM_BUFFERLENGTH, part.file_length, CURLFORM_END);
+                    continue;
+                }
             }
             if (part.content_type.empty()) {
                 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, part.name.data(),
