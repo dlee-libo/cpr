@@ -83,7 +83,6 @@ Session::Impl::Impl() {
 
 void Session::Impl::freeHolder(CurlHolder* holder) {
     curl_easy_cleanup(holder->handle);
-    curl_slist_free_all(holder->chunk);
     delete holder;
 }
 
@@ -118,8 +117,8 @@ void Session::Impl::SetHeader(const Header& header) {
             }
             chunk = curl_slist_append(chunk, header_string.data());
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
-            curl_->chunk = chunk;
         }
+        curl_->chunk.reset(chunk);
     }
 }
 
@@ -198,6 +197,7 @@ void Session::Impl::SetMultipart(Multipart&& multipart) {
                              part.content_type.data(), CURLFORM_END);
             }
         }
+        curl_->formdata.reset(formpost);
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
     }
 }
@@ -219,7 +219,6 @@ void Session::Impl::SetMultipart(const Multipart& multipart) {
                                  CURLFORM_BUFFERPTR, part.buffer,
                                  CURLFORM_BUFFERLENGTH, part.file_length, CURLFORM_END);
                     continue;
-
                 }
             }
             if (part.content_type.empty()) {
@@ -231,6 +230,7 @@ void Session::Impl::SetMultipart(const Multipart& multipart) {
                              part.content_type.data(), CURLFORM_END);
             }
         }
+        curl_->formdata.reset(formpost);
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
     }
 }
