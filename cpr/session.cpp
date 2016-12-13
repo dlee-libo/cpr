@@ -399,14 +399,13 @@ Response Session::Impl::makeRequest(CURL* curl) {
     curl_easy_getinfo(curl, CURLINFO_COOKIELIST, &raw_cookies);
     for (struct curl_slist* nc = raw_cookies; nc; nc = nc->next) {
         // domain flag path secure expiration name value
+        std::cout << nc->data << std::endl;
         auto tokens = cpr::util::split(nc->data, '\t');
-        if (tokens[1] == "TRUE") {
-            auto name = tokens[5];
-            if (tokens.size() > 6) {
-                cookies[name] = tokens[6];
-            } else {
-                cookies[name] = "";
-            }
+        auto name = tokens[5];
+        if (tokens.size() > 6) {
+            cookies[name] = tokens[6];
+        } else {
+            cookies[name] = "";
         }
     }
     curl_slist_free_all(raw_cookies);
