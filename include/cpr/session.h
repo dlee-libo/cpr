@@ -40,6 +40,7 @@ class Session {
     void SetRedirect(const bool& redirect);
     void SetMaxRedirects(const MaxRedirects& max_redirects);
     void SetCookies(const Cookies& cookies);
+    void InitCookies(const Cookies& cookies, const std::string& domain);
     void SetBody(Body&& body);
     void SetBody(const Body& body);
 

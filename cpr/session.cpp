@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <sstream>
+#include <iostream>
 
 #include <curl/curl.h>
 
@@ -31,6 +33,7 @@ class Session::Impl {
     void SetRedirect(const bool& redirect);
     void SetMaxRedirects(const MaxRedirects& max_redirects);
     void SetCookies(const Cookies& cookies);
+    void InitCookies(const Cookies& cookies, const std::string domain);
     void SetBody(Body&& body);
     void SetBody(const Body& body);
 
@@ -257,6 +260,19 @@ void Session::Impl::SetCookies(const Cookies& cookies) {
     }
 }
 
+void Session::Impl::InitCookies(const Cookies& cookies, const std::string domain) {
+    auto curl = curl_->handle;
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_COOKIELIST, "ALL");
+        for (auto &kv : cookies) {
+            std::ostringstream os;
+            os << "Set-Cookie: " << kv.first
+                << "=" << kv.second << "; domain=" << domain << "; path=/";
+            curl_easy_setopt(curl, CURLOPT_COOKIELIST, os.str().data());
+        }
+    }
+}
+
 void Session::Impl::SetBody(Body&& body) {
     auto curl = curl_->handle;
     if (curl) {
@@ -414,6 +430,7 @@ void Session::SetMultipart(Multipart&& multipart) { pimpl_->SetMultipart(std::mo
 void Session::SetRedirect(const bool& redirect) { pimpl_->SetRedirect(redirect); }
 void Session::SetMaxRedirects(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
 void Session::SetCookies(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
+void Session::InitCookies(const Cookies& cookies, const std::string& domain) { pimpl_->InitCookies(cookies, domain); }
 void Session::SetBody(const Body& body) { pimpl_->SetBody(body); }
 void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
 void Session::SetOption(const Url& url) { pimpl_->SetUrl(url); }
