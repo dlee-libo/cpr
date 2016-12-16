@@ -4,8 +4,6 @@
 #include <functional>
 #include <string>
 #include <sstream>
-#include <iostream>
-
 #include <curl/curl.h>
 
 #include "cpr/curlholder.h"
@@ -399,7 +397,6 @@ Response Session::Impl::makeRequest(CURL* curl) {
     curl_easy_getinfo(curl, CURLINFO_COOKIELIST, &raw_cookies);
     for (struct curl_slist* nc = raw_cookies; nc; nc = nc->next) {
         // domain flag path secure expiration name value
-        std::cout << nc->data << std::endl;
         auto tokens = cpr::util::split(nc->data, '\t');
         auto name = tokens[5];
         if (tokens.size() > 6) {
