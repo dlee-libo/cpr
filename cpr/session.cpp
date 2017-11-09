@@ -380,6 +380,7 @@ Response Session::Impl::makeRequest(CURL* curl) {
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, cpr::util::writeFunction);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0l);
 
     auto curl_error = curl_easy_perform(curl);
 
